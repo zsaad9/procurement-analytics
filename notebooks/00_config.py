@@ -6,7 +6,7 @@
 # MAGIC **Databricks Free Edition setup (one time)**
 # MAGIC 1. Run this notebook once. It creates the schema `workspace.wb_procurement` and the volume `raw`.
 # MAGIC 2. In *Catalog → workspace → wb_procurement → Volumes → raw*, click **Upload to this volume** and upload the CSV
-# MAGIC    downloaded from Finances One (dataset DS00005). Any file name ending in `.csv` works; the newest is used.
+# MAGIC    downloaded from Finances One (dataset DS00005). Any file name ending in `.csv` (or gzip-compressed `.csv.gz`) works; the newest is used.
 # MAGIC 3. Run `01_bronze_ingest` → `02_silver_transform` → `03_gold_model` → `04_data_quality` → `05_indicators` →
 # MAGIC    `06_export` (or run `99_run_all`).
 # MAGIC
@@ -36,8 +36,8 @@ if IS_DATABRICKS:
     spark.sql(f"CREATE VOLUME IF NOT EXISTS {CATALOG}.{SCHEMA}.{EXPORT_VOLUME}")
     RAW_DIR = f"/Volumes/{CATALOG}/{SCHEMA}/{RAW_VOLUME}"
     EXPORT_DIR = f"/Volumes/{CATALOG}/{SCHEMA}/{EXPORT_VOLUME}"
-    _csvs = sorted(f.path for f in dbutils.fs.ls(RAW_DIR) if f.path.lower().endswith(".csv"))
-    RAW_PATH = _csvs[-1] if _csvs else None
+    _csvs = sorted(f.path for f in dbutils.fs.ls(RAW_DIR) if f.path.lower().endswith((".csv", ".csv.gz")))
+    RAW_PATH = _csvs[-1].replace("dbfs:", "", 1) if _csvs else None   # plain /Volumes/... path
     TABLE_FORMAT = "delta"
 
     def T(name: str) -> str:
