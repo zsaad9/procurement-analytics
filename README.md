@@ -63,8 +63,10 @@ Download the CSV from World Bank Finances One, dataset *Contract Awards in Inves
 ### 2a. Databricks Free Edition
 1. *Workspace → Create → Git folder* with this repository URL (or import the files in `notebooks/`).
 2. Open `notebooks/00_config` and run it. It creates the schema and the `raw` volume.
-3. *Catalog → workspace → wb_procurement → Volumes → raw → Upload to this volume*: upload the CSV.
-4. Run `99_run_all` on serverless compute (the full local test run took about 2.5 minutes).
+3. *Catalog → workspace → wb_procurement → Volumes → raw → Upload to this volume*: upload the CSV. If the
+   115 MB browser upload fails, gzip it first (`gzip -k file.csv`, about 28 MB) and upload the `.csv.gz`; the
+   pipeline reads it directly.
+4. Run `99_run_all` on serverless compute, or run `01`–`06` one by one the first time to see each step's output.
 5. Explore tables in *Catalog*, query `vw_awards` in the SQL editor, or download `exports/`.
 
 ### 2b. Locally (tests the same notebooks)
@@ -140,8 +142,9 @@ checks pass.
 * **Classification assumptions**: method → competition tier mapping, equal-split allocation of multi-practice
   projects, and `World` treated as international organisations are analyst choices, documented in
   [`docs/indicators.md`](docs/indicators.md) and [`docs/data_dictionary.md`](docs/data_dictionary.md).
-* **Testing**: the notebooks were run end to end with PySpark 4.0.1 through `scripts/run_pipeline_local.py`
-  (Parquet tables). On Databricks they write Delta tables to Unity Catalog; the Databricks-only calls (`dbutils`,
-  volumes, `COMMENT ON TABLE`) sit behind `IS_DATABRICKS` branches and were not executed here.
+* **Testing**: the pipeline was run end to end on **Databricks Free Edition** (serverless, Delta tables in Unity
+  Catalog) and locally with PySpark 4.0.1 through `scripts/run_pipeline_local.py`; results matched on both. The
+  chatbot's DuckDB backend and rule-based planner are tested; the Claude planner is tested with a mocked API client;
+  the Databricks SQL backend for the chatbot has not been run.
 
 *Data: World Bank, Finances One (public). This is an independent portfolio project, not a World Bank product.*
