@@ -2,7 +2,8 @@
 # MAGIC %md
 # MAGIC # 06 · Export gold and indicator tables
 # MAGIC
-# MAGIC Writes every gold, indicator and DQ table as **Parquet** (for the chatbot / DuckDB) and **CSV** (for Power BI
+# MAGIC Writes every gold, indicator and DQ table as **Parquet** (zstd-compressed, so every file stays under
+# MAGIC GitHub's 25 MB browser-upload limit; for the chatbot / DuckDB) and **CSV** (for Power BI
 # MAGIC Desktop's *Get data → Folder/Text*), one folder per table, to the `exports` volume.
 # MAGIC Download them from *Catalog → workspace → wb_procurement → Volumes → exports*, or connect Power BI directly
 # MAGIC to the Databricks SQL warehouse instead (see `powerbi/README.md`).
@@ -29,7 +30,7 @@ def export(name):
         tmp = f"{EXPORT_DIR}/_tmp_{name}_{fmt}"
         target = f"{EXPORT_DIR}/{fmt}/{name}.{fmt}"
         w = df.write.mode("overwrite")
-        (w.option("header", True).csv(tmp) if fmt == "csv" else w.parquet(tmp))
+        (w.option("header", True).csv(tmp) if fmt == "csv" else w.option("compression", "zstd").parquet(tmp))
         # Spark writes a folder of part files; keep the single part file under a clean name
         if IS_DATABRICKS:
             part = [f.path for f in dbutils.fs.ls(tmp) if f.name.startswith("part-")][0]
