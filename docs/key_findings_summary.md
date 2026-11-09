@@ -1,0 +1,5 @@
+- **Fewer, larger contracts.** Median contract value rose from USD 21,973 (FY2021) to USD 42,000 (FY2026); FY2026 contract count fell 24.8% while value fell 10.4%.
+- **The COVID-era spike in direct selection has unwound.** 28.6% of value in FY2021 → 12.4% in FY2026; open-competitive share 81.8% in FY2026, the highest complete year.
+- **Value is concentrated.** The largest 1% of contracts carry 54.1% of value; prior review covers 6.2% of contracts but 63.0% of value.
+- **Chinese firms lead foreign suppliers.** 41.7% of value won by foreign firms; 22.3% of Works value outside China.
+- **Domestic share 60.1%**, from 41.9% (Eastern and Southern Africa) to 77.2% (South Asia).

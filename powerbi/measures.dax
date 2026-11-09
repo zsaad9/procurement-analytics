@@ -1,0 +1,248 @@
+// =====================================================================================================
+// DAX measures for the World Bank IPF contract-awards model
+// Create a blank table named _Measures (Enter data → one empty column → delete column) and add these
+// measures to it. Display folders are given in the comment above each block.
+// Model assumptions: relationships exactly as in powerbi/README.md (fact → dim_date → dim_fiscal_year;
+// bridge_project_practice is NOT related; it is used through TREATAS).
+// Reconcile results against docs/indicator_values.md (computed by the Spark pipeline).
+// =====================================================================================================
+
+// ---------- Folder: 1 Core ------------------------------------------------------------------------
+
+Award Value USD =
+SUM ( fact_contract_awards[amount_usd] )
+
+Contracts =
+DISTINCTCOUNT ( fact_contract_awards[wb_contract_number] )
+
+Award Lines =
+COUNTROWS ( fact_contract_awards )
+
+// I3 — contract value = sum of all supplier rows of the contract (re-adds JV splits)
+Avg Contract Value USD =
+DIVIDE ( [Award Value USD], [Contracts] )
+
+Median Contract Value USD =
+MEDIANX ( VALUES ( fact_contract_awards[wb_contract_number] ), [Award Value USD] )
+// Note: if a supplier-side filter (supplier country, supplier) is active, only that supplier's part of a
+// joint-venture contract is counted. Use with contract-level slicers (FY, region, method, category).
+
+// ---------- Folder: 2 Method mix (I4–I6) --------------------------------------------------------------
+
+Award Value All Methods =
+CALCULATE ( [Award Value USD], REMOVEFILTERS ( dim_procurement_method ) )
+
+Contracts All Methods =
+CALCULATE ( [Contracts], REMOVEFILTERS ( dim_procurement_method ) )
+
+// I4: use with dim_procurement_method[competition_tier] / [method_group] / [method_name] on an axis
+Method Value Share =
+DIVIDE ( [Award Value USD], [Award Value All Methods] )
+
+Method Count Share =
+DIVIDE ( [Contracts], [Contracts All Methods] )
+
+// I5
+Open Competitive Value Share =
+DIVIDE (
+    CALCULATE ( [Award Value USD], KEEPFILTERS ( dim_procurement_method[is_open_competitive] = TRUE () ) ),
+    [Award Value All Methods]
+)
+
+// I6
+Direct Selection Value Share =
+DIVIDE (
+    CALCULATE ( [Award Value USD], KEEPFILTERS ( dim_procurement_method[is_direct] = TRUE () ) ),
+    [Award Value All Methods]
+)
+
+Direct Selection Count Share =
+DIVIDE (
+    CALCULATE ( [Contracts], KEEPFILTERS ( dim_procurement_method[is_direct] = TRUE () ) ),
+    [Contracts All Methods]
+)
+
+// ---------- Folder: 3 Suppliers (I7–I8) -------------------------------------------------------------
+
+Award Value Identified Origin =
+CALCULATE (
+    [Award Value USD],
+    REMOVEFILTERS ( fact_contract_awards[supplier_origin] ),
+    fact_contract_awards[supplier_origin] IN { "Domestic", "Foreign", "International organization" }
+)
+
+// I7
+Domestic Supplier Value Share =
+DIVIDE (
+    CALCULATE ( [Award Value USD], KEEPFILTERS ( fact_contract_awards[supplier_origin] = "Domestic" ) ),
+    [Award Value Identified Origin]
+)
+
+Foreign Supplier Value Share =
+DIVIDE (
+    CALCULATE ( [Award Value USD], KEEPFILTERS ( fact_contract_awards[supplier_origin] = "Foreign" ) ),
+    [Award Value Identified Origin]
+)
+
+International Org Value Share =
+DIVIDE (
+    CALCULATE ( [Award Value USD], KEEPFILTERS ( fact_contract_awards[supplier_origin] = "International organization" ) ),
+    [Award Value Identified Origin]
+)
+
+Unknown Supplier Country Value USD =
+CALCULATE ( [Award Value USD], fact_contract_awards[supplier_origin] = "Unknown supplier country" )
+
+// I8 — firms only: anonymised individuals and unknown suppliers excluded
+Firm Value USD =
+CALCULATE (
+    [Award Value USD],
+    dim_supplier[is_individual_consultant] = FALSE (),
+    dim_supplier[supplier_key] <> "UNKNOWN"
+)
+
+Top 10 Supplier Value Share =
+VAR Firms =
+    CALCULATETABLE (
+        VALUES ( dim_supplier[supplier_key] ),
+        dim_supplier[is_individual_consultant] = FALSE (),
+        dim_supplier[supplier_key] <> "UNKNOWN"
+    )
+VAR Top10 = TOPN ( 10, Firms, [Award Value USD], DESC )
+RETURN
+    DIVIDE ( CALCULATE ( [Award Value USD], Top10 ), [Firm Value USD] )
+
+Supplier HHI =
+VAR Total = [Firm Value USD]
+VAR Firms =
+    CALCULATETABLE (
+        VALUES ( dim_supplier[supplier_key] ),
+        dim_supplier[is_individual_consultant] = FALSE (),
+        dim_supplier[supplier_key] <> "UNKNOWN"
+    )
+RETURN
+    SUMX ( Firms, POWER ( DIVIDE ( [Award Value USD], Total ) * 100, 2 ) )
+
+Supplier Rank (by value) =
+IF (
+    ISINSCOPE ( dim_supplier[supplier_name] ),
+    RANKX ( ALLSELECTED ( dim_supplier[supplier_name] ), [Award Value USD], , DESC, DENSE )
+)
+
+// ---------- Folder: 4 Oversight (I9) ---------------------------------------------------------------
+
+Prior Review Value Share =
+DIVIDE (
+    CALCULATE ( [Award Value USD], KEEPFILTERS ( fact_contract_awards[review_type] = "Prior" ) ),
+    CALCULATE ( [Award Value USD], REMOVEFILTERS ( fact_contract_awards[review_type] ) )
+)
+
+Prior Review Count Share =
+DIVIDE (
+    CALCULATE ( [Contracts], KEEPFILTERS ( fact_contract_awards[review_type] = "Prior" ) ),
+    CALCULATE ( [Contracts], REMOVEFILTERS ( fact_contract_awards[review_type] ) )
+)
+
+// ---------- Folder: 5 Region & sector (I10) ---------------------------------------------------------
+
+Region Value Share =
+DIVIDE ( [Award Value USD], CALCULATE ( [Award Value USD], REMOVEFILTERS ( dim_borrower_country ) ) )
+
+// Use with bridge_project_practice[global_practice] on the axis (bridge is not related to the model)
+Allocated Value USD (Practice) =
+SUMX (
+    bridge_project_practice,
+    bridge_project_practice[allocation_weight]
+        * CALCULATE (
+            [Award Value USD],
+            TREATAS ( { bridge_project_practice[project_id] }, dim_project[project_id] )
+        )
+)
+
+Practice Value Share =
+DIVIDE (
+    [Allocated Value USD (Practice)],
+    CALCULATE ( [Allocated Value USD (Practice)], REMOVEFILTERS ( bridge_project_practice ) )
+)
+
+// ---------- Folder: 6 Time comparison ---------------------------------------------------------------
+
+Selected FY =
+SELECTEDVALUE ( dim_fiscal_year[fiscal_year] )
+
+Award Value PY =
+VAR fy = [Selected FY]
+RETURN
+    IF (
+        NOT ISBLANK ( fy ),
+        CALCULATE (
+            [Award Value USD],
+            REMOVEFILTERS ( dim_date ),
+            REMOVEFILTERS ( dim_fiscal_year ),
+            dim_fiscal_year[fiscal_year] = fy - 1
+        )
+    )
+
+Award Value YoY % =
+DIVIDE ( [Award Value USD] - [Award Value PY], [Award Value PY] )
+
+Contracts PY =
+VAR fy = [Selected FY]
+RETURN
+    IF (
+        NOT ISBLANK ( fy ),
+        CALCULATE ( [Contracts], REMOVEFILTERS ( dim_date ), REMOVEFILTERS ( dim_fiscal_year ),
+                    dim_fiscal_year[fiscal_year] = fy - 1 )
+    )
+
+Contracts YoY % =
+DIVIDE ( [Contracts] - [Contracts PY], [Contracts PY] )
+
+Median Contract Value PY =
+VAR fy = [Selected FY]
+RETURN
+    IF (
+        NOT ISBLANK ( fy ),
+        CALCULATE ( [Median Contract Value USD], REMOVEFILTERS ( dim_date ), REMOVEFILTERS ( dim_fiscal_year ),
+                    dim_fiscal_year[fiscal_year] = fy - 1 )
+    )
+
+Open Competitive Share PY (pp change) =
+VAR fy = [Selected FY]
+VAR py =
+    CALCULATE ( [Open Competitive Value Share], REMOVEFILTERS ( dim_date ), REMOVEFILTERS ( dim_fiscal_year ),
+                dim_fiscal_year[fiscal_year] = fy - 1 )
+RETURN
+    IF ( NOT ISBLANK ( fy ), [Open Competitive Value Share] - py )
+
+// Fiscal-year-to-date, for comparing a partial year with the same months of earlier years
+Award Value FYTD Same Period PY =
+VAR fy = [Selected FY]
+VAR LastMonth =
+    CALCULATE ( MAX ( dim_date[fiscal_month_number] ), fact_contract_awards )
+RETURN
+    CALCULATE (
+        [Award Value USD],
+        REMOVEFILTERS ( dim_date ),
+        REMOVEFILTERS ( dim_fiscal_year ),
+        dim_fiscal_year[fiscal_year] = fy - 1,
+        dim_date[fiscal_month_number] <= LastMonth
+    )
+
+// ---------- Folder: 7 Labels & data quality ---------------------------------------------------------
+
+Data Through Label =
+"Contracts signed through " & FORMAT ( MAX ( dim_fiscal_year[last_signing_date] ), "d mmm yyyy" )
+
+Partial Year Warning =
+IF (
+    COUNTROWS ( FILTER ( VALUES ( dim_fiscal_year[is_complete_fy] ), dim_fiscal_year[is_complete_fy] = FALSE () ) ) > 0,
+    "⚠ Selection includes a partial fiscal year: compare with FYTD measures, not full-year totals.",
+    ""
+)
+
+Outlier Lines =
+CALCULATE ( [Award Lines], fact_contract_awards[is_amount_outlier] = TRUE () )
+
+Joint Award Contracts =
+CALCULATE ( [Contracts], fact_contract_awards[is_joint_award] = TRUE () )

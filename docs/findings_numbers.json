@@ -1,0 +1,358 @@
+{
+  "fy_first": 2020,
+  "fy_last_complete": 2026,
+  "fy_partial": 2027,
+  "fy_partial_months": 4,
+  "fy_partial_last_date": "2026-10-31",
+  "total_usd_all": 137451354047.91,
+  "contracts_all": 283738.0,
+  "lines_all": 295989.0,
+  "total_usd_complete": 132020825385.67,
+  "contracts_complete": 278790.0,
+  "by_fy": {
+    "2020": {
+      "value": 15080924522.4,
+      "contracts": 33263,
+      "median": 30463.03,
+      "avg": 453384.376707,
+      "open": 0.7661835835,
+      "direct": 0.1745542482,
+      "domestic": 0.6431395397,
+      "intl": 0.0608070356,
+      "prior": 0.596553972
+    },
+    "2021": {
+      "value": 19126177852.59,
+      "contracts": 42997,
+      "median": 21972.69,
+      "avg": 444825.868144,
+      "open": 0.6575538811,
+      "direct": 0.2862066123,
+      "domestic": 0.5626924343,
+      "intl": 0.0553516181,
+      "prior": 0.6553373933
+    },
+    "2022": {
+      "value": 19333082733.17,
+      "contracts": 38671,
+      "median": 28248.09,
+      "avg": 499937.491484,
+      "open": 0.6594278833,
+      "direct": 0.281648538,
+      "domestic": 0.5340579356,
+      "intl": 0.1333186228,
+      "prior": 0.6824388478
+    },
+    "2023": {
+      "value": 17404763862.16,
+      "contracts": 42157,
+      "median": 29360.77,
+      "avg": 412855.845107,
+      "open": 0.7418596695,
+      "direct": 0.1779087005,
+      "domestic": 0.6045697497,
+      "intl": 0.078223315,
+      "prior": 0.6051476014
+    },
+    "2024": {
+      "value": 20783066876.31,
+      "contracts": 44375,
+      "median": 33137.14,
+      "avg": 468350.802846,
+      "open": 0.7900812736,
+      "direct": 0.1312904163,
+      "domestic": 0.600935934,
+      "intl": 0.0475358498,
+      "prior": 0.6241660807
+    },
+    "2025": {
+      "value": 21255169238.22,
+      "contracts": 44145,
+      "median": 35902.5,
+      "avg": 481485.315171,
+      "open": 0.7771827727,
+      "direct": 0.1550681126,
+      "domestic": 0.6451653995,
+      "intl": 0.0516324574,
+      "prior": 0.5768325909
+    },
+    "2026": {
+      "value": 19037640300.82,
+      "contracts": 33182,
+      "median": 42000.0,
+      "avg": 573733.961208,
+      "open": 0.8183405354,
+      "direct": 0.1243380531,
+      "domestic": 0.6242229511,
+      "intl": 0.0449129146,
+      "prior": 0.6632235543
+    },
+    "2027": {
+      "value": 5430528662.24,
+      "contracts": 4948,
+      "median": 65979.05,
+      "avg": 1097519.939822,
+      "open": 0.8863514871,
+      "direct": 0.0788042972,
+      "domestic": 0.6509003056,
+      "intl": 0.028323727,
+      "prior": 0.7845420054
+    }
+  },
+  "f1_peak_fy": 2025,
+  "f1_median_min_fy": 2021,
+  "f1_count_change_last": -0.24834069543549664,
+  "f1_value_change_last": -0.104328924062978,
+  "f1_median_change": 0.9114637306583764,
+  "f1_median_change_to_prev": 0.6339601569038658,
+  "f1_rfq_prev": 18103,
+  "f1_rfq_last": 11485,
+  "f1_rfq_change": -0.3655747666132685,
+  "f1_rfq_share_of_drop": 0.6036668795037855,
+  "f1_projects_prev": 1547,
+  "f1_projects_last": 1419,
+  "f1_h1_change": -0.20189115360369825,
+  "f1_h2_change": -0.3026535626535627,
+  "f2_covid_direct": {
+    "2020": {
+      "direct_usd": 2632439442.72,
+      "covid_usd": 1041181641.0,
+      "covid_share_of_direct": 0.3955196932941358
+    },
+    "2021": {
+      "direct_usd": 5474038569.48,
+      "covid_usd": 3761707011.44,
+      "covid_share_of_direct": 0.6871904469970403
+    },
+    "2022": {
+      "direct_usd": 5445134486.9,
+      "covid_usd": 3563720348.3,
+      "covid_share_of_direct": 0.6544779301362824
+    },
+    "2023": {
+      "direct_usd": 3096458920.72,
+      "covid_usd": 588359844.05,
+      "covid_share_of_direct": 0.19001054401625725
+    },
+    "2024": {
+      "direct_usd": 2728617501.6,
+      "covid_usd": 426713363.79,
+      "covid_share_of_direct": 0.15638445606237772
+    },
+    "2025": {
+      "direct_usd": 3295998976.98,
+      "covid_usd": 217286026.44,
+      "covid_share_of_direct": 0.06592417896897863
+    },
+    "2026": {
+      "direct_usd": 2367103130.2,
+      "covid_usd": 20137547.7,
+      "covid_share_of_direct": 0.008507254053733836
+    },
+    "2027": {
+      "direct_usd": 427948994.67,
+      "covid_usd": 5524691.85,
+      "covid_share_of_direct": 0.012909696993820956
+    }
+  },
+  "f2_peak_direct_fy": 2021,
+  "f2_covid_direct_fy21_22": 7325427359.74,
+  "f2_direct_fy21_22": 10919173056.38,
+  "f2_open_max_fy": 2026,
+  "f2_intl_peak_fy": 2022,
+  "f3_top1pct_share": 0.5406042475282604,
+  "f3_bottom50_share": 0.010448068729387907,
+  "f3_top1pct_n": 2788,
+  "f3_top1pct_threshold": 7690764.2,
+  "f3_prior_count_share": 0.06156246637253847,
+  "f3_prior_value_share": 0.6295654775068666,
+  "f3_rfq_ics_count_share": 0.6028659564546791,
+  "f3_rfq_ics_value_share": 0.0633445041463718,
+  "f3_prior_value_share_range": [
+    0.5768325909,
+    0.6824388478
+  ],
+  "f4_china_usd": 19116185575.07,
+  "f4_china_share_all": 0.14845718486919848,
+  "f4_china_share_works": 0.22319998350810502,
+  "f4_china_contracts": 1304.0,
+  "f4_china_borrowers": 102.0,
+  "f4_china_works_share_of_own": 0.8559033011139874,
+  "f4_china_share_foreign": 0.4166521662515446,
+  "f4_top_foreign": [
+    [
+      "China",
+      16772964260.91
+    ],
+    [
+      "India",
+      1750838867.57
+    ],
+    [
+      "Turkiye",
+      1625886379.32
+    ],
+    [
+      "United States",
+      1520125252.47
+    ],
+    [
+      "Spain",
+      1480326907.65
+    ],
+    [
+      "Germany",
+      1440904622.67
+    ]
+  ],
+  "f4_china_foreign_usd": 16772964260.91,
+  "f4_next5_combined": 7818082029.68,
+  "f4_china_by_region": {
+    "AFE": 0.27929064869693426,
+    "ECA": 0.05814022873931692,
+    "SAR": 0.09123122279790784,
+    "LCR": 0.030093287812593923,
+    "EAP": 0.09285253703089875,
+    "MNA": 0.13999344292963958,
+    "AFW": 0.16939415913927464
+  },
+  "f4_unknown_chinese_named_usd": 282686699.57,
+  "f4_china_share_by_fy": {
+    "2020": 0.15258885813769288,
+    "2021": 0.151948317844595,
+    "2022": 0.126958946691806,
+    "2023": 0.14337560838883548,
+    "2024": 0.19645292422529934,
+    "2025": 0.15159034376242125,
+    "2026": 0.11199994820793682,
+    "2027": 0.1728553013609782
+  },
+  "f4_china_domestic_usd": 3242726708.61,
+  "f5_domestic_all": 0.6009392943036714,
+  "f5_domestic_by_region": {
+    "AFE": [
+      "Eastern and Southern Africa",
+      0.41888148317802576
+    ],
+    "MNA": [
+      "Middle East, North Africa, Afghanistan and Pakistan",
+      0.5300449727084497
+    ],
+    "AFW": [
+      "Western and Central Africa",
+      0.573972791932952
+    ],
+    "LCR": [
+      "Latin America and Caribbean",
+      0.6149600990506124
+    ],
+    "ECA": [
+      "Europe and Central Asia",
+      0.6722227569946753
+    ],
+    "EAP": [
+      "East Asia and Pacific",
+      0.7667520017745229
+    ],
+    "SAR": [
+      "South Asia",
+      0.7721958452858436
+    ]
+  },
+  "f5_domestic_by_region_cat": {
+    "SAR|Consultant Services": 0.7229120729905159,
+    "AFW|Consultant Services": 0.5835939738512033,
+    "AFW|Goods": 0.5808483899263109,
+    "AFW|Works": 0.5541650490091716,
+    "SAR|Goods": 0.5764232764085834,
+    "LCR|Non-consulting Services": 0.6549296063049833,
+    "SAR|Works": 0.8476426939312252,
+    "AFE|Non-consulting Services": 0.348007389250746,
+    "EAP|Non-consulting Services": 0.8960396193568353,
+    "ECA|Non-consulting Services": 0.5055757866939667,
+    "MNA|Non-consulting Services": 0.3796039289283321,
+    "LCR|Goods": 0.4978078177206763,
+    "EAP|Consultant Services": 0.5363741018290921,
+    "MNA|Consultant Services": 0.577891129829937,
+    "AFE|Consultant Services": 0.45068563954409463,
+    "EAP|Goods": 0.659112747247867,
+    "ECA|Consultant Services": 0.6319116683758336,
+    "LCR|Consultant Services": 0.521319439868123,
+    "AFE|Works": 0.3865936892205911,
+    "AFE|Goods": 0.4876833674725157,
+    "ECA|Goods": 0.522902584041966,
+    "EAP|Works": 0.8374159640882909,
+    "MNA|Works": 0.5847043240281752,
+    "ECA|Works": 0.7591883168658351,
+    "LCR|Works": 0.7229659667430891,
+    "SAR|Non-consulting Services": 0.33947731923931185,
+    "MNA|Goods": 0.4304014983422243,
+    "AFW|Non-consulting Services": 0.723008240892757
+  },
+  "f5_dom_range": [
+    0.5340579356,
+    0.6451653995
+  ],
+  "f5_region_value_share": {
+    "AFE": 0.2384607538431368,
+    "ECA": 0.14732371007385894,
+    "OTH": 7.751976334114678e-05,
+    "SAR": 0.12376150843731586,
+    "LCR": 0.07920391818823602,
+    "EAP": 0.10803501375229352,
+    "MNA": 0.1066231122057347,
+    "AFW": 0.19651446373608306
+  },
+  "dq": {
+    "unique:dim_fiscal_year:fiscal_year": 0,
+    "unique:dim_date:date_key": 0,
+    "valid:signing_date_in_range": 0,
+    "valid:fiscal_year_matches_source": 0,
+    "valid:calendar_year_matches_source": 0,
+    "valid:amount_non_negative": 0,
+    "valid:amount_non_zero": 9,
+    "valid:amount_at_least_10_usd": 509,
+    "valid:method_mapped": 0,
+    "valid:category_mapped": 0,
+    "valid:region_mapped": 0,
+    "outlier:amount_iqr_by_category": 330,
+    "reconcile:row_count_bronze_vs_silver": 0,
+    "reconcile:amount_bronze_vs_silver": 0,
+    "reconcile:fact_rows_vs_silver": 0,
+    "fk:project_id->dim_project": 0,
+    "fk:borrower_country_key->dim_borrower_country": 0,
+    "fk:supplier_key->dim_supplier": 0,
+    "fk:supplier_country_key->dim_supplier_country": 0,
+    "fk:method_key->dim_procurement_method": 0,
+    "fk:category_key->dim_procurement_category": 0,
+    "fk:fiscal_year->dim_fiscal_year": 0,
+    "fk:signing_date_key->dim_date": 0,
+    "not_null:wb_contract_number": 0,
+    "not_null:project_id": 0,
+    "not_null:contract_signing_date": 0,
+    "not_null:amount_usd": 0,
+    "not_null:procurement_method": 0,
+    "not_null:procurement_category": 0,
+    "not_null:region_code": 0,
+    "not_null:borrower_country": 0,
+    "not_null:supplier_id": 7,
+    "not_null:supplier_name": 7,
+    "not_null:supplier_country": 653,
+    "not_null:borrower_country_code": 2195,
+    "not_null:contract_description": 350,
+    "not_null:review_type": 179,
+    "not_empty:global_practice": 30942,
+    "unique:award_line_id(contract,supplier)": 0,
+    "consistent:contract_attributes": 0,
+    "probable_duplicate_entry": 837,
+    "unique:dim_project:project_id": 0,
+    "unique:dim_supplier:supplier_key": 0,
+    "unique:dim_borrower_country:borrower_country_key": 0,
+    "unique:dim_supplier_country:supplier_country_key": 0,
+    "unique:dim_procurement_method:method_key": 0
+  },
+  "dq_probable_dup_rows": 837,
+  "f1_value_min": 15080924522.4,
+  "f1_value_max": 21255169238.22,
+  "f1_value_min_fy": 2020
+}
