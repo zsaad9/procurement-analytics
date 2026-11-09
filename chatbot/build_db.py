@@ -39,6 +39,7 @@ JOIN dim_fiscal_year y          ON f.fiscal_year = y.fiscal_year
 
 
 def build(gold: Path, out: Path):
+    out.parent.mkdir(parents=True, exist_ok=True)
     if out.exists():
         out.unlink()
     con = duckdb.connect(str(out))
@@ -55,6 +56,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     root = Path(__file__).resolve().parents[1]
     ap.add_argument("--gold", default=os.environ.get("WB_GOLD_DIR", root / "data/gold/parquet"), type=Path)
-    ap.add_argument("--out", default=root / "chatbot/warehouse.duckdb", type=Path)
+    ap.add_argument("--out", default=os.environ.get("WB_DB_PATH", root / "chatbot/warehouse.duckdb"), type=Path)
     a = ap.parse_args()
     build(a.gold, a.out)

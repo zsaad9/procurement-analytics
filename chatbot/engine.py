@@ -17,7 +17,7 @@ import pandas as pd
 from guardrails import UnsafeQueryError, validate_sql
 from llm import ClaudePlanner, Plan, RuleBasedPlanner
 
-DEFAULT_DB = Path(__file__).resolve().parent / "warehouse.duckdb"
+DEFAULT_DB = Path(os.environ.get("WB_DB_PATH", Path(__file__).resolve().parent / "warehouse.duckdb"))
 
 
 class DuckDBBackend:

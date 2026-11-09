@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World Bank IPF Contract Awards – Procurement Dashboard</title>
+<style>
+.viz-root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface-1: #fcfcfb; --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #6f6d68;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10); --hover: rgba(11,11,11,0.04);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s1-soft: #9ec5f4;
+  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b; --info: #2a78d6;
+  --tip-bg: #0b0b0b; --tip-fg: #f0efec;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface-1: #1a1a19; --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --hover: rgba(255,255,255,0.05);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s1-soft: #184f95;
+    --tip-bg: #f0efec; --tip-fg: #0b0b0b;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface-1: #1a1a19; --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10); --hover: rgba(255,255,255,0.05);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s1-soft: #184f95;
+  --tip-bg: #f0efec; --tip-fg: #0b0b0b;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body.viz-root { background: var(--page); color: var(--text-primary); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 20px 24px 40px; }
+header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
+.sub { color: var(--text-secondary); font-size: 13px; margin: 0; }
+.btn { font: inherit; font-size: 13px; color: var(--text-primary); background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+.btn:hover { background: var(--hover); }
+.btn:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+.filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 18px 0 10px; }
+.filters label { display: flex; flex-direction: column; font-size: 12px; color: var(--text-secondary); gap: 4px; }
+select { font: inherit; font-size: 13px; color: var(--text-primary); background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 8px; min-width: 180px; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--grid); margin: 8px 0 16px; flex-wrap: wrap; }
+.tab { font: inherit; font-size: 14px; background: none; border: none; border-bottom: 2px solid transparent; padding: 8px 12px;
+  color: var(--text-secondary); cursor: pointer; }
+.tab[aria-selected="true"] { color: var(--text-primary); border-bottom-color: var(--text-primary); font-weight: 600; }
+.banner { background: var(--surface-1); border: 1px solid var(--border); border-left: 3px solid var(--warning); border-radius: 6px;
+  padding: 8px 12px; margin-bottom: 14px; font-size: 13px; color: var(--text-secondary); display: none; }
+.banner b { color: var(--text-primary); }
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px 12px; min-width: 0; }
+.c12 { grid-column: span 12; } .c8 { grid-column: span 8; } .c7 { grid-column: span 7; } .c6 { grid-column: span 6; }
+.c5 { grid-column: span 5; } .c4 { grid-column: span 4; } .c3 { grid-column: span 3; }
+@media (max-width: 900px) { .c8, .c7, .c6, .c5, .c4 { grid-column: span 12; } .c3 { grid-column: span 6; } }
+.card h2 { font-size: 14px; font-weight: 600; margin: 0; }
+.card .note { font-size: 12px; color: var(--text-secondary); margin: 2px 0 10px; }
+.card-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.tbtn { font-size: 11px; padding: 2px 8px; flex: none; }
+.tile .label { font-size: 12px; color: var(--text-secondary); }
+.tile .value { font-size: 26px; font-weight: 600; margin: 2px 0; }
+.tile .delta { font-size: 12px; color: var(--text-secondary); }
+.tile .hint { font-size: 11px; color: var(--text-muted); }
+.hero .value { font-size: 48px; line-height: 1.1; }
+svg { display: block; overflow: visible; }
+svg text { fill: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+svg .lbl { fill: var(--text-secondary); font-size: 11px; }
+svg .lbl-strong { fill: var(--text-primary); font-size: 11px; font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--text-secondary); margin: 6px 0 2px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.lk { width: 14px; height: 2px; border-radius: 1px; display: inline-block; }
+.hb { display: grid; grid-template-columns: minmax(90px, 34%) 1fr auto; gap: 6px 10px; align-items: center; font-size: 12px; }
+.hb .n { color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hb .t { height: 14px; position: relative; }
+.hb .b { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; background: var(--s1); }
+.hb .v { color: var(--text-secondary); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.hb .row { display: contents; }
+.hb .row:hover .b, .hb .row:focus .b { filter: brightness(1.12); }
+.seg { display: flex; gap: 2px; height: 28px; margin: 6px 0 4px; }
+.seg div { border-radius: 4px; color: #fff; font-size: 12px; font-weight: 600; display: flex; align-items: center; padding-left: 6px;
+  white-space: nowrap; overflow: hidden; min-width: 0; }
+.seg div.dark-ink { color: #0b0b0b; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--text-secondary); font-weight: 600; position: sticky; top: 0; background: var(--surface-1); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tablewrap { max-height: 360px; overflow: auto; }
+.tv { margin-top: 8px; display: none; }
+.status { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
+.status i { font-style: normal; width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center;
+  justify-content: center; font-size: 10px; color: #fff; }
+#tip { position: fixed; pointer-events: none; z-index: 10; background: var(--tip-bg); color: var(--tip-fg); border-radius: 6px;
+  padding: 7px 9px; font-size: 12px; display: none; max-width: 320px; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+#tip .tt { opacity: .75; margin-bottom: 3px; }
+#tip .tr { display: flex; align-items: center; gap: 6px; }
+#tip .tr b { font-variant-numeric: tabular-nums; }
+footer { margin-top: 28px; font-size: 12px; color: var(--text-secondary); border-top: 1px solid var(--grid); padding-top: 12px; }
+footer p { margin: 4px 0; }
+.panel[hidden] { display: none; }
+</style>
+</head>
+<body class="viz-root">
+<div class="wrap">
+  <header>
+    <div>
+      <h1>World Bank IPF contract awards: procurement dashboard</h1>
+      <p class="sub" id="subtitle"></p>
+    </div>
+    <button class="btn" id="theme" type="button" aria-label="Toggle dark mode">◐ Theme</button>
+  </header>
+
+  <div class="filters" role="group" aria-label="Filters">
+    <label>Fiscal year<select id="f-fy"></select></label>
+    <label>Region<select id="f-reg"></select></label>
+    <label>Procurement category<select id="f-cat"></select></label>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-p="overview" aria-selected="true">Executive overview</button>
+    <button class="tab" role="tab" data-p="trends" aria-selected="false">Trends</button>
+    <button class="tab" role="tab" data-p="methods" aria-selected="false">Procurement methods</button>
+    <button class="tab" role="tab" data-p="regions" aria-selected="false">Regions &amp; suppliers</button>
+    <button class="tab" role="tab" data-p="dq" aria-selected="false">Data quality</button>
+  </div>
+  <div class="banner" id="banner"></div>
+
+  <section class="panel" id="p-overview">
+    <div class="grid">
+      <div class="card tile hero c4" id="t-value"></div>
+      <div class="card c8"><div class="grid" id="tiles" style="gap:12px"></div></div>
+      <div class="card c7" id="ch-value-fy"></div>
+      <div class="card c5" id="ch-tier-seg"></div>
+      <div class="card c6" id="ch-geo"></div>
+      <div class="card c6" id="ch-foreign"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-trends" hidden>
+    <div class="grid">
+      <div class="card c6" id="ch-contracts-fy"></div>
+      <div class="card c6" id="ch-median-fy"></div>
+      <div class="card c7" id="ch-shares-fy"></div>
+      <div class="card c5" id="ch-cat-fy"></div>
+      <div class="card c12" id="ch-monthly"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-methods" hidden>
+    <div class="grid">
+      <div class="card c6" id="ch-tier-value"></div>
+      <div class="card c6" id="ch-tier-count"></div>
+      <div class="card c12" id="tb-methods"></div>
+      <div class="card c12" id="tb-direct"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-regions" hidden>
+    <div class="grid">
+      <div class="card c12" id="tb-regions"></div>
+      <div class="card c6" id="ch-origin-reg"></div>
+      <div class="card c6" id="ch-practice"></div>
+      <div class="card c6" id="tb-suppliers"></div>
+      <div class="card c6" id="ch-borrowers"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-dq" hidden>
+    <div class="grid">
+      <div class="card c12" id="dq-tiles"></div>
+      <div class="card c12" id="tb-dq"></div>
+    </div>
+  </section>
+
+  <footer>
+    <p><b>Source:</b> World Bank, Finances One, dataset DS00005 “Contract Awards in Investment Project Financing (since FY 2020)”, sourced from STEP. Licensed CC BY 4.0. Independent analysis, not a World Bank product.</p>
+    <p><b>Caveats:</b> excludes subcontracts and cofinancing. Joint-venture contract values are split equally among members. Supplier country is the country of registration. There is no field for international vs national competition or number of bids. Probable duplicate entries are excluded. The latest fiscal year is partial, and recent months may be under-reported because of data-entry lag.</p>
+    <p><b>Definitions:</b> contracts = distinct WB contract numbers; contract value = sum of all supplier rows; “All years” = complete fiscal years only; domestic share = domestic / (domestic + foreign + international organisations); top-10 share = firms only (anonymised individuals excluded).</p>
+  </footer>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const M = DATA.meta;
+const $ = s => document.querySelector(s);
+const css = v => getComputedStyle(document.body).getPropertyValue(v).trim();
+const SER = () => ["--s1", "--s2", "--s3", "--s4", "--s5"].map(css);
+const DARK_INK = new Set(["--s4"]);            // labels inside yellow fills use near-black ink
+const TIER_SHORT = ["Open competitive", "Limited (RFQ)", "Individual consultants", "Direct selection", "Other"];
+const ORIGIN_SHORT = ["Domestic", "Foreign", "International org.", "Unknown country", "Regional borrower"];
+const REGION = Object.fromEntries(M.regions);
+const NS = "http://www.w3.org/2000/svg";
+
+// ---------- formatting
+const usd = v => (v == null || !isFinite(v)) ? "–" : Math.abs(v) >= 1e9 ? "$" + (v / 1e9).toFixed(2) + "B" : Math.abs(v) >= 1e6 ? "$" + (v / 1e6).toFixed(1) + "M"
+  : Math.abs(v) >= 1e3 ? "$" + (v / 1e3).toFixed(1) + "K" : "$" + Math.round(v);
+const usdAxis = v => v === 0 ? "0" : v >= 1e9 ? "$" + +(v / 1e9).toFixed(1) + "B" : v >= 1e6 ? "$" + +(v / 1e6).toFixed(1) + "M" : v >= 1e3 ? "$" + +(v / 1e3).toFixed(0) + "K" : "$" + v;
+const num = v => (v == null || !isFinite(v)) ? "–" : Math.round(v).toLocaleString("en-US");
+const numAxis = v => v >= 10000 ? (v / 1000).toFixed(0) + "K" : v.toLocaleString("en-US");
+const pct = v => (v == null || !isFinite(v)) ? "–" : (v * 100).toFixed(1) + "%";
+const pctAxis = v => Math.round(v * 100) + "%";
+const fyLabel = f => f === "ALL" ? `FY${M.complete[0]}–FY${M.complete[M.complete.length - 1]}` : "FY" + f + (M.partial && +f === M.partial.fy ? " (partial)" : "");
+
+// ---------- state
+const S = { fy: String(M.complete[M.complete.length - 1]), reg: "ALL", cat: "ALL", tab: "overview" };
+const EMPTY = { k: [0, 0, null, null, null, null, null, null, 0], tier: M.tiers.map(() => [0, 0]), origin: M.origins.map(() => 0),
+  methods: [], regions: [], practices: [], foreign: [], borrowers: [], suppliers: [], direct: [], mon: Array(12).fill(0) };
+const C = (fy = S.fy, reg = S.reg, cat = S.cat) => DATA.c[`${fy}|${reg}|${cat}`] || EMPTY;
+const scopeText = () => [S.reg === "ALL" ? "all regions" : REGION[S.reg], S.cat === "ALL" ? "all categories" : S.cat].join(" · ");
+
+// ---------- DOM helpers (labels always via textContent)
+function el(tag, attrs = {}, text) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (text != null) e.textContent = text;
+  return e;
+}
+function sv(tag, attrs = {}, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (text != null) e.textContent = text;
+  return e;
+}
+const tip = $("#tip");
+function showTip(evt, title, rows) {
+  tip.replaceChildren();
+  tip.append(el("div", { class: "tt" }, title));
+  for (const r of rows) {
+    const d = el("div", { class: "tr" });
+    if (r.color) { const k = el("span", { class: "lk" }); k.style.background = r.color; d.append(k); }
+    d.append(el("b", {}, r.value), document.createTextNode(" " + (r.label || "")));
+    tip.append(d);
+  }
+  tip.style.display = "block";
+  let x, y;
+  if (evt.clientX != null && evt.type !== "focus") { x = evt.clientX; y = evt.clientY; }
+  else { const b = evt.target.getBoundingClientRect(); x = b.left + b.width / 2; y = b.top; }
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(window.innerWidth - w - 8, Math.max(8, x + 12)) + "px";
+  tip.style.top = Math.max(8, y - h - 12) + "px";
+}
+const hideTip = () => { tip.style.display = "none"; };
+function hoverable(node, title, rows) {
+  node.setAttribute("tabindex", "0");
+  node.addEventListener("pointermove", e => showTip(e, title, rows()));
+  node.addEventListener("focus", e => showTip(e, title, rows()));
+  node.addEventListener("pointerleave", hideTip);
+  node.addEventListener("blur", hideTip);
+}
+
+// card scaffold with title, note and a table-view toggle (the accessible twin of each chart)
+function card(id, title, note, tableFn) {
+  const c = document.getElementById(id);
+  c.replaceChildren();
+  const head = el("div", { class: "card-head" });
+  const t = el("div"); t.append(el("h2", {}, title)); if (note) t.append(el("p", { class: "note" }, note));
+  head.append(t);
+  const body = el("div");
+  const tv = el("div", { class: "tv tablewrap" });
+  if (tableFn) {
+    const b = el("button", { class: "btn tbtn", type: "button", "aria-expanded": "false" }, "Table");
+    b.onclick = () => {
+      const open = tv.style.display !== "block";
+      tv.style.display = open ? "block" : "none"; b.setAttribute("aria-expanded", open);
+      b.textContent = open ? "Chart" : "Table"; body.style.display = open ? "none" : "block";
+      if (open) { tv.replaceChildren(tableEl(...tableFn())); }
+    };
+    head.append(b);
+  }
+  c.append(head, body, tv);
+  return body;
+}
+function tableEl(cols, rows) {
+  const t = el("table"), th = el("thead"), tr = el("tr");
+  cols.forEach(c => tr.append(el("th", { class: c.num ? "num" : "" }, c.h)));
+  th.append(tr); t.append(th);
+  const tb = el("tbody");
+  rows.forEach(r => {
+    const row = el("tr");
+    cols.forEach((c, i) => { const cell = el("td", { class: c.num ? "num" : "" }); const v = r[i];
+      if (v instanceof Node) cell.append(v); else cell.textContent = v; row.append(cell); });
+    tb.append(row);
+  });
+  t.append(tb);
+  return t;
+}
+function legend(items, kind = "sw") {
+  const l = el("div", { class: "legend" });
+  items.forEach(([name, color]) => { const s = el("span"); const k = el("span", { class: kind }); k.style.background = color;
+    s.append(k, document.createTextNode(name)); l.append(s); });
+  return l;
+}
+
+// ---------- scales
+function niceMax(max, ticks = 4) {
+  if (!(max > 0)) return { max: 1, step: 0.25 };
+  const raw = max / ticks, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw);
+  return { max: Math.ceil(max / step) * step, step };
+}
+// column path: square at the baseline, 4px rounded data-end
+function colPath(x, y, w, h, r = 4) {
+  if (h <= 0) return "";
+  r = Math.min(r, h, w / 2);
+  return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
+}
+
+// ---------- column chart (single, stacked, or 100% stacked)
+function columns(body, { cats, series, percent = false, fmt, axisFmt, height = 220, emphasis = null, partial = null, labelIdx = [] }) {
+  const W = Math.max(280, body.clientWidth || body.parentElement.clientWidth - 32), H = height;
+  const m = { l: 52, r: 8, t: 14, b: 24 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
+  const totals = cats.map((_, i) => series.reduce((s, se) => s + (se.values[i] || 0), 0));
+  const { max, step } = percent ? { max: 1, step: 0.25 } : niceMax(Math.max(...totals));
+  const y = v => m.t + ph - (v / max) * ph;
+  const svg = sv("svg", { width: W, height: H, role: "img", "aria-label": series.map(s => s.name).join(", ") });
+  for (let v = 0; v <= max + 1e-9; v += step) {
+    svg.append(sv("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: v === 0 ? css("--axis") : css("--grid"), "stroke-width": 1 }));
+    svg.append(sv("text", { x: m.l - 6, y: y(v) + 4, "text-anchor": "end" }, (axisFmt || fmt)(v)));
+  }
+  const band = pw / cats.length, bw = Math.min(24, band * 0.6);
+  cats.forEach((c, i) => {
+    const x = m.l + band * i + (band - bw) / 2;
+    let acc = 0;
+    const segs = series.map(s => s.values[i] || 0);
+    const total = percent ? totals[i] : 1;
+    const nonzero = segs.map((v, k) => [v, k]).filter(([v]) => v > 0);
+    nonzero.forEach(([v, k], j) => {
+      const val = percent ? v / total : v;
+      const y0 = y(acc), y1 = y(acc + val);
+      const top = j === nonzero.length - 1;
+      const h = Math.max(0, y0 - y1 - (j > 0 ? 2 : 0));       // 2px surface gap between stacked segments
+      const p = top ? colPath(x, y1, bw, h) : `M${x},${y1}h${bw}v${h}h${-bw}Z`;
+      const node = sv("path", { d: p, fill: series[k].color });
+      if (emphasis != null && emphasis !== i && series.length === 1) node.setAttribute("fill", css("--s1-soft"));
+      if (partial === i) node.setAttribute("opacity", "0.55");
+      svg.append(node);
+      acc += val;
+    });
+    const lab = sv("text", { x: x + bw / 2, y: H - 6, "text-anchor": "middle", class: emphasis === i ? "lbl-strong" : "" },
+      String(c) + (partial === i ? "*" : ""));
+    svg.append(lab);
+    if (labelIdx.includes(i) && series.length === 1) svg.append(sv("text", { x: x + bw / 2, y: y(totals[i]) - 5, "text-anchor": "middle", class: "lbl-strong" }, fmt(totals[i])));
+    const hit = sv("rect", { x: m.l + band * i, y: m.t, width: band, height: ph, fill: "transparent" });
+    hoverable(hit, String(c) + (partial === i ? " (partial year)" : ""), () => {
+      const rows = series.map((s, k) => ({ color: s.color, label: s.name, value: percent ? pct(totals[i] ? (s.values[i] || 0) / totals[i] : 0) : fmt(s.values[i] || 0) })).reverse();
+      if (series.length > 1 && !percent) rows.unshift({ label: "total", value: fmt(totals[i]) });
+      return rows;
+    });
+    svg.append(hit);
+  });
+  body.append(svg);
+  if (series.length > 1) body.append(legend(series.map(s => [s.name, s.color])));
+  if (partial != null) body.append(el("p", { class: "note" }, `* FY${M.partial.fy} is partial (contracts signed to ${M.partial.through}).`));
+}
+
+// ---------- line chart with crosshair
+function lines(body, { cats, series, fmt, axisFmt, height = 220, yMax = null, partial = null }) {
+  const W = Math.max(280, body.clientWidth || body.parentElement.clientWidth - 32), H = height;
+  const directLabels = series.length > 1 && series.length <= 4;
+  const m = { l: 52, r: directLabels ? 120 : 16, t: 14, b: 24 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
+  const all = series.flatMap(s => s.values).filter(v => v != null);
+  const { max, step } = yMax != null ? { max: yMax, step: yMax / 4 } : niceMax(Math.max(...all));
+  const x = i => m.l + (cats.length === 1 ? pw / 2 : (pw * i) / (cats.length - 1));
+  const y = v => m.t + ph - (v / max) * ph;
+  const svg = sv("svg", { width: W, height: H, role: "img", "aria-label": series.map(s => s.name).join(", ") });
+  for (let v = 0; v <= max + 1e-9; v += step) {
+    svg.append(sv("line", { x1: m.l, x2: m.l + pw, y1: y(v), y2: y(v), stroke: v === 0 ? css("--axis") : css("--grid") }));
+    svg.append(sv("text", { x: m.l - 6, y: y(v) + 4, "text-anchor": "end" }, (axisFmt || fmt)(v)));
+  }
+  cats.forEach((c, i) => svg.append(sv("text", { x: x(i), y: H - 6, "text-anchor": "middle" }, String(c) + (partial === i ? "*" : ""))));
+  const ends = [];
+  series.forEach(s => {
+    let d = "";
+    s.values.forEach((v, i) => { if (v == null) return; d += (d ? "L" : "M") + x(i) + "," + y(v); });
+    svg.append(sv("path", { d, fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    const li = s.values.map((v, i) => v == null ? -1 : i).filter(i => i >= 0).pop();
+    if (li != null) {
+      svg.append(sv("circle", { cx: x(li), cy: y(s.values[li]), r: 4, fill: s.color, stroke: css("--surface-1"), "stroke-width": 2 }));
+      ends.push({ s, y: y(s.values[li]), x: x(li), v: s.values[li] });
+    }
+  });
+  if (directLabels) {
+    ends.sort((a, b) => a.y - b.y);
+    const collide = ends.some((e, i) => i > 0 && e.y - ends[i - 1].y < 13);
+    if (!collide) ends.forEach(e => svg.append(sv("text", { x: e.x + 8, y: e.y + 4, class: "lbl" }, `${e.s.name} ${fmt(e.v)}`)));
+  }
+  const cross = sv("line", { y1: m.t, y2: m.t + ph, stroke: css("--axis"), "stroke-width": 1, visibility: "hidden" });
+  svg.append(cross);
+  const ov = sv("rect", { x: m.l - 10, y: m.t, width: pw + 20, height: ph, fill: "transparent", tabindex: 0 });
+  const at = i => {
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+    return series.map(s => ({ color: s.color, label: s.name, value: fmt(s.values[i]) }));
+  };
+  let kb = cats.length - 1;
+  ov.addEventListener("pointermove", e => {
+    const r = svg.getBoundingClientRect(); const px = e.clientX - r.left;
+    const i = Math.max(0, Math.min(cats.length - 1, Math.round(((px - m.l) / pw) * (cats.length - 1))));
+    showTip(e, String(cats[i]) + (partial === i ? " (partial year)" : ""), at(i));
+  });
+  ov.addEventListener("focus", e => showTip(e, String(cats[kb]), at(kb)));
+  ov.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") { kb = Math.max(0, Math.min(cats.length - 1, kb + (e.key === "ArrowRight" ? 1 : -1)));
+      const b = ov.getBoundingClientRect(); showTip({ clientX: b.left + (x(kb) - m.l) + 10, clientY: b.top, type: "kb" }, String(cats[kb]), at(kb)); }
+  });
+  const off = () => { hideTip(); cross.setAttribute("visibility", "hidden"); };
+  ov.addEventListener("pointerleave", off); ov.addEventListener("blur", off);
+  svg.append(ov);
+  body.append(svg);
+  if (series.length > 1) body.append(legend(series.map(s => [s.name, s.color]), "lk"));
+  if (partial != null) body.append(el("p", { class: "note" }, `* FY${M.partial.fy} is partial (contracts signed to ${M.partial.through}).`));
+}
+
+// ---------- horizontal ranked bars (one series => one colour)
+function hbars(body, items, fmt, sub) {
+  if (!items.length) { body.append(el("p", { class: "note" }, "No records for this selection.")); return; }
+  const max = Math.max(...items.map(d => d.value));
+  const g = el("div", { class: "hb" });
+  items.forEach(d => {
+    const row = el("div", { class: "row" });
+    const n = el("div", { class: "n", title: d.label }, d.label);
+    const t = el("div", { class: "t" }); const b = el("div", { class: "b" });
+    b.style.width = Math.max(0.5, (d.value / max) * 100) + "%"; t.append(b);
+    const v = el("div", { class: "v" }, fmt(d.value));
+    row.append(n, t, v);
+    hoverable(row, d.label, () => [{ value: fmt(d.value), label: "" }].concat(sub ? sub(d) : []));
+    g.append(row);
+  });
+  body.append(g);
+}
+
+// ---------- tall segmented bar: one whole, split into parts
+function segmented(body, parts, fmt) {
+  const total = parts.reduce((s, p) => s + p.value, 0);
+  const bar = el("div", { class: "seg", role: "img", "aria-label": parts.map(p => `${p.name} ${pct(p.value / total)}`).join(", ") });
+  parts.filter(p => p.value > 0).forEach(p => {
+    const share = p.value / total;
+    const d = el("div"); d.style.flex = `${share} 1 0`; d.style.background = p.color;
+    if (p.darkInk) d.classList.add("dark-ink");
+    const label = pct(share);
+    d.dataset.label = label;
+    hoverable(d, p.name, () => [{ value: pct(share), label: "of value" }, { value: fmt(p.value), label: "" }]);
+    bar.append(d);
+  });
+  body.append(bar);
+  body.append(legend(parts.map(p => [p.name, p.color])));
+  requestAnimationFrame(() => bar.querySelectorAll("div").forEach(d => {     // print a share only where it fits
+    if (d.clientWidth > d.dataset.label.length * 7 + 14) d.textContent = d.dataset.label;
+  }));
+}
+
+function statusBadge(s) {
+  const map = { PASS: ["--good", "✓"], WARN: ["--warning", "!"], INFO: ["--info", "i"], FAIL: ["--critical", "✕"] };
+  const [c, icon] = map[s] || ["--text-muted", "?"];
+  const w = el("span", { class: "status" }); const i = el("i", {}, icon); i.style.background = css(c);
+  if (s === "WARN") i.style.color = "#0b0b0b";
+  w.append(i, document.createTextNode(s));
+  return w;
+}
+
+// ---------- tiles
+function tile(target, label, value, delta, hint) {
+  target.replaceChildren(el("div", { class: "label" }, label), el("div", { class: "value" }, value));
+  if (delta) target.append(el("div", { class: "delta" }, delta));
+  if (hint) target.append(el("div", { class: "hint" }, hint));
+}
+function deltaText(cur, prev, kind) {
+  if (M.partial && S.fy === String(M.partial.fy)) return "partial year: no comparison";
+  if (S.fy === "ALL" || prev == null || cur == null || !isFinite(cur) || !isFinite(prev)) return "";
+  const pfy = +S.fy - 1;
+  if (kind === "pp") { const d = (cur - prev) * 100; return `${d >= 0 ? "▲" : "▼"} ${Math.abs(d).toFixed(1)} pp vs FY${pfy}`; }
+  const d = (cur - prev) / prev; return `${d >= 0 ? "▲" : "▼"} ${Math.abs(d * 100).toFixed(1)}% vs FY${pfy}`;
+}
+
+function sparkline(target) {
+  const fys = M.fys, vals = fys.map(f => C(String(f)).k[0]);
+  const W = Math.max(200, target.clientWidth - 32), H = 64, pad = 6, max = Math.max(...vals) || 1;
+  const x = i => pad + (W - 2 * pad) * i / (fys.length - 1), y = v => H - 16 - (v / max) * (H - 24);
+  const svg = sv("svg", { width: W, height: H, role: "img", "aria-label": "Award value by fiscal year" });
+  const ci = fys.map((f, i) => M.complete.includes(f) ? i : -1).filter(i => i >= 0);
+  svg.append(sv("path", { d: ci.map((i, j) => (j ? "L" : "M") + x(i) + "," + y(vals[i])).join(""), fill: "none", stroke: css("--axis"), "stroke-width": 2, "stroke-linejoin": "round" }));
+  fys.forEach((f, i) => {
+    const sel = String(f) === S.fy, part = M.partial && f === M.partial.fy;
+    const dot = sv("circle", { cx: x(i), cy: y(vals[i]), r: sel ? 5 : 3, fill: sel ? css("--s1") : css("--axis"), stroke: css("--surface-1"), "stroke-width": 2, opacity: part ? 0.6 : 1 });
+    hoverable(dot, fyLabel(String(f)), () => [{ value: usd(vals[i]), label: "award value" }]);
+    svg.append(dot);
+  });
+  svg.append(sv("text", { x: pad, y: H - 2 }, "FY" + String(fys[0]).slice(2)), sv("text", { x: W - pad, y: H - 2, "text-anchor": "end" }, "FY" + String(fys[fys.length - 1]).slice(2) + (M.partial ? "*" : "")));
+  const wrap = el("div", { style: "margin-top:14px" });
+  wrap.append(el("div", { class: "hint" }, "Award value by fiscal year (* partial)"), svg);
+  target.append(wrap);
+}
+
+// ================================================================== pages
+function renderOverview() {
+  const c = C(), k = c.k, p = S.fy === "ALL" ? null : DATA.c[`${+S.fy - 1}|${S.reg}|${S.cat}`];
+  const pk = p ? p.k : [];
+  if (!k[1]) { /* empty selection */ }
+  tile($("#t-value"), `Total award value · ${fyLabel(S.fy)}`, usd(k[0]), deltaText(k[0], pk[0]), scopeText());
+  sparkline($("#t-value"));
+  const tiles = $("#tiles"); tiles.replaceChildren();
+  [["Contracts awarded", num(k[1]), deltaText(k[1], pk[1])],
+   ["Median contract value", usd(k[2]), deltaText(k[2], pk[2])],
+   ["Open competitive share", pct(k[3]), deltaText(k[3], pk[3], "pp"), "of award value"],
+   ["Direct selection share", pct(k[4]), deltaText(k[4], pk[4], "pp"), "of award value"],
+   ["Domestic supplier share", pct(k[5]), deltaText(k[5], pk[5], "pp"), "of value to identified suppliers"],
+   ["Prior-review share", pct(k[6]), deltaText(k[6], pk[6], "pp"), `of value · ${pct(k[8] / k[1])} of contracts`],
+   ["Top-10 firms' share", pct(k[7]), deltaText(k[7], pk[7], "pp"), "of value to firms"],
+   ["Average contract value", usd(k[0] / k[1]), deltaText(k[0] / k[1], pk[0] / pk[1]), "skewed by large contracts"],
+  ].forEach(([l, v, d, h]) => { const t = el("div", { class: "tile c3" }); tile(t, l, v, d, h); tiles.append(t); });
+
+  const fys = M.fys, vals = fys.map(f => (C(f) || { k: [0] }).k[0]);
+  const pi = M.partial ? fys.indexOf(M.partial.fy) : null, ei = S.fy === "ALL" ? null : fys.indexOf(+S.fy);
+  const b1 = card("ch-value-fy", "Award value by fiscal year", `${scopeText()} · selected year highlighted`,
+    () => [[{ h: "Fiscal year" }, { h: "Award value (USD)", num: 1 }, { h: "Contracts", num: 1 }],
+           fys.map(f => [fyLabel(String(f)), num((C(f) || { k: [0] }).k[0]), num((C(f) || { k: [0, 0] }).k[1])])]);
+  columns(b1, { cats: fys.map(f => "FY" + String(f).slice(2)), series: [{ name: "Award value", values: vals, color: css("--s1") }],
+    fmt: usd, axisFmt: usdAxis, emphasis: ei, partial: pi, labelIdx: ei != null ? [ei] : [] });
+
+  const col = SER();
+  const b2 = card("ch-tier-seg", "How the money was awarded", `Share of award value by competition tier · ${fyLabel(S.fy)}`,
+    () => [[{ h: "Tier" }, { h: "Award value (USD)", num: 1 }, { h: "Share", num: 1 }, { h: "Contracts", num: 1 }],
+           c.tier.map((t, i) => [TIER_SHORT[i], num(t[0]), pct(t[0] / k[0]), num(t[1])])]);
+  segmented(b2, c.tier.map((t, i) => ({ name: TIER_SHORT[i], value: t[0], color: col[i], darkInk: i === 3 })), usd);
+  const cnt = el("p", { class: "note" }, `By number of contracts: ${c.tier.map((t, i) => `${TIER_SHORT[i]} ${pct(t[1] / k[1])}`).join(" · ")}. ` +
+    "Open competitive includes RFB, RFP, e-auction, QCBS, QBS, FBS, LCS, CQS; limited = Request for Quotations; direct = Direct Selection and UN agencies.");
+  b2.append(cnt);
+
+  if (S.reg === "ALL") {
+    const regs = c.regions.filter(r => r[0] !== "OTH");
+    const b3 = card("ch-geo", "Award value by region", fyLabel(S.fy),
+      () => [[{ h: "Region" }, { h: "USD", num: 1 }, { h: "Share", num: 1 }, { h: "Contracts", num: 1 }], c.regions.map(r => [REGION[r[0]], num(r[1]), pct(r[1] / k[0]), num(r[2])])]);
+    hbars(b3, regs.map(r => ({ label: REGION[r[0]], value: r[1], r })), usd, d => [{ value: pct(d.value / k[0]), label: "of total" }, { value: num(d.r[2]), label: "contracts" }]);
+  } else {
+    const b3 = card("ch-geo", `Top borrowers in ${REGION[S.reg]}`, fyLabel(S.fy),
+      () => [[{ h: "Borrower" }, { h: "USD", num: 1 }, { h: "Contracts", num: 1 }], c.borrowers.map(r => [r[0], num(r[1]), num(r[2])])]);
+    hbars(b3, c.borrowers.map(r => ({ label: r[0], value: r[1], r })), usd, d => [{ value: num(d.r[2]), label: "contracts" }]);
+  }
+  const b4 = card("ch-foreign", "Top foreign supplier countries", `Value won by firms registered outside the borrower country · ${fyLabel(S.fy)}`,
+    () => [[{ h: "Supplier country" }, { h: "USD", num: 1 }, { h: "Contracts", num: 1 }], c.foreign.map(r => [r[0], num(r[1]), num(r[2])])]);
+  hbars(b4, c.foreign.map(r => ({ label: r[0], value: r[1], r })), usd, d => [{ value: num(d.r[2]), label: "contracts" }]);
+}
+
+function fySeries(idx, fn) { return M.fys.map(f => { const c = C(String(f)); return c ? (fn ? fn(c) : c.k[idx]) : null; }); }
+
+function renderTrends() {
+  const fys = M.fys, cats = fys.map(f => "FY" + String(f).slice(2));
+  const pi = M.partial ? fys.indexOf(M.partial.fy) : null;
+  const tbl = (cols, fns) => () => [[{ h: "Fiscal year" }].concat(cols.map(h => ({ h, num: 1 }))), fys.map(f => [fyLabel(String(f))].concat(fns.map(fn => fn(C(String(f))))))];
+  const b1 = card("ch-contracts-fy", "Contracts awarded per year", `${scopeText()} · fiscal-year filter not applied`,
+    tbl(["Contracts"], [c => num(c.k[1])]));
+  columns(b1, { cats, series: [{ name: "Contracts", values: fySeries(1), color: css("--s1") }], fmt: num, axisFmt: numAxis, partial: pi });
+  const cfy = M.complete, ccats = cfy.map(f => "FY" + String(f).slice(2));
+  const cSeries = idx => cfy.map(f => C(String(f)).k[idx]);
+  const ctbl = (cols, fns) => () => [[{ h: "Fiscal year" }].concat(cols.map(h => ({ h, num: 1 }))), cfy.map(f => [fyLabel(String(f))].concat(fns.map(fn => fn(C(String(f))))))];
+  const b2 = card("ch-median-fy", "Median contract value", `${scopeText()} · complete years · contract value = sum of all supplier rows`,
+    ctbl(["Median (USD)", "Average (USD)"], [c => num(c.k[2]), c => num(c.k[0] / c.k[1])]));
+  lines(b2, { cats: ccats, series: [{ name: "Median", values: cSeries(2), color: css("--s1") }], fmt: usd, axisFmt: usdAxis });
+
+  const col = SER();
+  const shares = [["Open competitive", 3], ["Direct selection", 4], ["Domestic suppliers", 5], ["Prior review", 6]];
+  const b3 = card("ch-shares-fy", "Key shares of award value over time", `${scopeText()} · complete years`,
+    ctbl(shares.map(s => s[0]), shares.map(s => c => pct(c.k[s[1]]))));
+  lines(b3, { cats: ccats, series: shares.map((s, i) => ({ name: s[0], values: cSeries(s[1]), color: col[i] })), fmt: pct, axisFmt: pctAxis, yMax: 1 });
+
+  const catList = S.cat === "ALL" ? M.cats : [S.cat];
+  const b4 = card("ch-cat-fy", "Award value by procurement category", `${S.reg === "ALL" ? "all regions" : REGION[S.reg]}`,
+    () => [[{ h: "Fiscal year" }].concat(catList.map(c => ({ h: c, num: 1 }))),
+           fys.map(f => [fyLabel(String(f))].concat(catList.map(ct => num((C(String(f), S.reg, ct) || { k: [0] }).k[0]))))]);
+  columns(b4, { cats, series: catList.map(ct => ({ name: ct, color: col[M.cats.indexOf(ct)], values: fys.map(f => (C(String(f), S.reg, ct) || { k: [0] }).k[0]) })),
+    fmt: usd, axisFmt: usdAxis, partial: pi });
+
+  const recent = fys.slice(-3);
+  const months = ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+  const b5 = card("ch-monthly", "Contracts signed per month, latest three fiscal years",
+    "Data-entry lag check: if the latest complete year runs below earlier years mainly in its final months, awards may still be being entered in STEP.",
+    () => [[{ h: "Month" }].concat(recent.map(f => ({ h: "FY" + f, num: 1 }))), months.map((mo, i) => [mo].concat(recent.map(f => num((C(String(f)).mon || [])[i]))))]);
+  lines(b5, { cats: months, height: 240, fmt: num, axisFmt: numAxis,
+    series: recent.map((f, i) => ({ name: "FY" + f + (M.partial && f === M.partial.fy ? " (partial)" : ""), color: col[i],
+      values: (C(String(f)).mon || []).map((v, j) => (M.partial && f === M.partial.fy && j >= M.partial.months) ? null : v) })) });
+}
+
+function renderMethods() {
+  const fys = M.fys, cats = fys.map(f => "FY" + String(f).slice(2)), col = SER();
+  const pi = M.partial ? fys.indexOf(M.partial.fy) : null;
+  for (const [id, idx, title] of [["ch-tier-value", 0, "Share of award value by competition tier"], ["ch-tier-count", 1, "Share of contracts by competition tier"]]) {
+    const b = card(id, title, `${scopeText()} · value and count tell different stories`,
+      () => [[{ h: "Fiscal year" }].concat(TIER_SHORT.map(h => ({ h, num: 1 }))),
+             fys.map(f => { const t = C(String(f)).tier, tot = t.reduce((s, x) => s + x[idx], 0); return [fyLabel(String(f))].concat(t.map(x => pct(x[idx] / tot))); })]);
+    columns(b, { cats, percent: true, fmt: pct, axisFmt: pctAxis, partial: pi,
+      series: TIER_SHORT.map((n, i) => ({ name: n, color: col[i], values: fys.map(f => C(String(f)).tier[i][idx]) })) });
+  }
+  const c = C(), k = c.k;
+  const b3 = card("tb-methods", "Procurement methods", `${fyLabel(S.fy)} · ${scopeText()}`);
+  const w = el("div", { class: "tablewrap" });
+  w.append(tableEl([{ h: "Method" }, { h: "Competition tier" }, { h: "Award value (USD)", num: 1 }, { h: "Share of value", num: 1 },
+                    { h: "Contracts", num: 1 }, { h: "Share of contracts", num: 1 }, { h: "Median contract (USD)", num: 1 }],
+    c.methods.map(m => [m[0], TIER_SHORT[m[1]], num(m[2]), pct(m[2] / k[0]), num(m[3]), pct(m[3] / k[1]), num(m[4])])));
+  b3.append(w);
+  const b4 = card("tb-direct", "Largest direct-selection contracts", `${fyLabel(S.fy)} · ${scopeText()} · direct selection is often justified (emergencies, UN agencies, vaccines); a large value is a prompt for review, not a finding`);
+  const w2 = el("div", { class: "tablewrap" });
+  w2.append(tableEl([{ h: "Contract" }, { h: "FY", num: 1 }, { h: "Borrower" }, { h: "Supplier(s)" }, { h: "Value (USD)", num: 1 }, { h: "Description" }],
+    c.direct.map(d => [d[0], d[1], d[2], d[3], num(d[4]), d[5]])));
+  b4.append(w2);
+}
+
+function renderRegions() {
+  const c = C(), k = c.k, col = SER();
+  const b1 = card("tb-regions", "Regional scorecard", `${fyLabel(S.fy)} · ${S.cat === "ALL" ? "all categories" : S.cat}${S.reg !== "ALL" ? " · region filter: " + REGION[S.reg] : ""}`);
+  const w = el("div", { class: "tablewrap" });
+  w.append(tableEl([{ h: "Region" }, { h: "Award value (USD)", num: 1 }, { h: "Share", num: 1 }, { h: "Contracts", num: 1 },
+                    { h: "Open competitive", num: 1 }, { h: "Direct selection", num: 1 }, { h: "Domestic suppliers", num: 1 }, { h: "Prior review", num: 1 }],
+    c.regions.map(r => [REGION[r[0]], num(r[1]), pct(r[1] / k[0]), num(r[2]), pct(r[3]), pct(r[6]), pct(r[4]), pct(r[5])])));
+  b1.append(w);
+
+  const regs = M.regions.filter(r => r[0] !== "OTH" && (S.reg === "ALL" || r[0] === S.reg));
+  const b2 = card("ch-origin-reg", "Who wins the contracts: supplier origin by region", `Share of award value · ${fyLabel(S.fy)}`,
+    () => [[{ h: "Region" }].concat(ORIGIN_SHORT.map(h => ({ h, num: 1 }))),
+           regs.map(([code, name]) => { const o = (C(S.fy, code) || { origin: [] }).origin, t = o.reduce((a, b) => a + b, 0); return [name].concat(o.map(v => pct(v / t))); })]);
+  const g = el("div");
+  regs.forEach(([code, name]) => {
+    const o = (C(S.fy, code) || { origin: [0, 0, 0, 0, 0] }).origin;
+    const row = el("div"); row.append(el("div", { class: "note", style: "margin:6px 0 0" }, name));
+    const total = o.reduce((a, b) => a + b, 0);
+    const bar = el("div", { class: "seg", style: "height:14px;margin:3px 0" });
+    o.forEach((v, i) => { if (v <= 0) return; const d = el("div"); d.style.flex = `${v / total} 1 0`; d.style.background = col[i];
+      hoverable(d, `${name}: ${ORIGIN_SHORT[i]}`, () => [{ value: pct(v / total), label: "of value" }, { value: usd(v), label: "" }]); bar.append(d); });
+    row.append(bar); g.append(row);
+  });
+  b2.append(g, legend(ORIGIN_SHORT.map((n, i) => [n, col[i]])));
+
+  const b3 = card("ch-practice", "Award value by global practice", `${fyLabel(S.fy)} · ${scopeText()} · multi-practice projects split equally`,
+    () => [[{ h: "Global practice" }, { h: "Allocated USD", num: 1 }, { h: "Share", num: 1 }], c.practices.map(p => [p[0], num(p[1]), pct(p[1] / k[0])])]);
+  hbars(b3, c.practices.map(p => ({ label: p[0], value: p[1] })), usd, d => [{ value: pct(d.value / k[0]), label: "of total" }]);
+
+  const b4 = card("tb-suppliers", "Top 10 suppliers", `${fyLabel(S.fy)} · ${scopeText()} · by STEP Supplier ID; affiliates of one group may have separate IDs`);
+  const w2 = el("div", { class: "tablewrap" });
+  w2.append(tableEl([{ h: "#" , num: 1 }, { h: "Supplier" }, { h: "Country" }, { h: "Value (USD)", num: 1 }, { h: "Contracts", num: 1 }],
+    c.suppliers.map((s, i) => [i + 1, s[0], s[1], num(s[2]), num(s[3])])));
+  b4.append(w2);
+
+  const b5 = card("ch-borrowers", "Top 10 borrowers", `${fyLabel(S.fy)} · ${scopeText()}`,
+    () => [[{ h: "Borrower" }, { h: "USD", num: 1 }, { h: "Contracts", num: 1 }], c.borrowers.map(r => [r[0], num(r[1]), num(r[2])])]);
+  hbars(b5, c.borrowers.map(r => ({ label: r[0], value: r[1], r })), usd, d => [{ value: num(d.r[2]), label: "contracts" }]);
+}
+
+function renderDQ() {
+  const counts = { PASS: 0, WARN: 0, INFO: 0, FAIL: 0 };
+  DATA.dq.forEach(r => counts[r[0]]++);
+  const t = $("#dq-tiles"); t.replaceChildren();
+  const h = el("div", { class: "card-head" }); const hh = el("div");
+  hh.append(el("h2", {}, "Automated data-quality checks"),
+    el("p", { class: "note" }, `Results of notebook 04_data_quality on the pipeline run behind this dashboard: ${DATA.dq.length} checks. Critical checks stop the pipeline when they fail; warnings and info are documented and kept. Filters do not apply to this page.`));
+  h.append(hh); t.append(h);
+  const g = el("div", { class: "grid", style: "gap:12px" });
+  [["Passed", counts.PASS, "PASS"], ["Warnings", counts.WARN, "WARN"], ["Info", counts.INFO, "INFO"], ["Failed", counts.FAIL, "FAIL"]].forEach(([l, v, s]) => {
+    const d = el("div", { class: "tile c3" }); const lab = el("div", { class: "label" }); lab.append(statusBadge(s));
+    d.append(lab, el("div", { class: "value" }, String(v)), el("div", { class: "hint" }, l)); g.append(d); });
+  t.append(g);
+  const b = card("tb-dq", "Check results", "Sorted by status. Records flagged = rows (or keys) failing the rule.");
+  const w = el("div", { class: "tablewrap", style: "max-height:520px" });
+  w.append(tableEl([{ h: "Status" }, { h: "Severity" }, { h: "Layer" }, { h: "Check" }, { h: "Checked", num: 1 }, { h: "Flagged", num: 1 }, { h: "%", num: 1 }, { h: "Description" }],
+    DATA.dq.map(r => [statusBadge(r[0]), r[1], r[2], r[3], num(r[4]), num(r[5]), r[6].toFixed(2) + "%", r[7]])));
+  b.append(w);
+}
+
+// ================================================================== wiring
+function render() {
+  hideTip();
+  const b = $("#banner");
+  if (M.partial && S.fy === String(M.partial.fy)) {
+    b.style.display = "block"; b.replaceChildren();
+    b.append(el("b", {}, `FY${M.partial.fy} is a partial year`), document.createTextNode(`: contracts signed through ${M.partial.through} (${M.partial.months} of 12 months). Do not compare totals or counts with full years.`));
+  } else b.style.display = "none";
+  ({ overview: renderOverview, trends: renderTrends, methods: renderMethods, regions: renderRegions, dq: renderDQ })[S.tab]();
+}
+function fill(sel, opts, val) { sel.replaceChildren(...opts.map(([v, t]) => { const o = el("option", { value: v }, t); if (v === val) o.selected = true; return o; })); }
+fill($("#f-fy"), [["ALL", `All complete years (${fyLabel("ALL")})`]].concat(M.fys.slice().reverse().map(f => [String(f), fyLabel(String(f))])), S.fy);
+fill($("#f-reg"), [["ALL", "All regions"]].concat(M.regions.map(([c, n]) => [c, n])), S.reg);
+fill($("#f-cat"), [["ALL", "All categories"]].concat(M.cats.map(c => [c, c])), S.cat);
+$("#f-fy").onchange = e => { S.fy = e.target.value; render(); };
+$("#f-reg").onchange = e => { S.reg = e.target.value; render(); };
+$("#f-cat").onchange = e => { S.cat = e.target.value; render(); };
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  S.tab = t.dataset.p;
+  document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === t));
+  document.querySelectorAll(".panel").forEach(p => p.hidden = p.id !== "p-" + S.tab);
+  render();
+});
+$("#theme").onclick = () => {
+  const r = document.documentElement, cur = r.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  r.setAttribute("data-theme", cur === "dark" ? "light" : "dark"); render();
+};
+$("#subtitle").textContent = `Contracts signed FY${M.fys[0]}–FY${M.fys[M.fys.length - 1]} (latest through ${M.partial ? M.partial.through : ""}) · ${num(M.rows)} award lines · World Bank Finances One DS00005`;
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });
+render();
+</script>
+</body>
+</html>
