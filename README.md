@@ -78,6 +78,9 @@ python scripts/run_pipeline_local.py                   # bronze → export, writ
 ```
 
 ### 3. Chatbot
+
+
+
 ```bash
 python chatbot/build_db.py                             # data/gold/parquet → chatbot/warehouse.duckdb
 cd chatbot
