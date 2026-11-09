@@ -84,6 +84,7 @@ python scripts/run_pipeline_local.py                   # bronze → export, writ
 ```
 
 ### 3. Chatbot
+https://github.com/user-attachments/assets/c74115e3-9e8a-470f-8833-c443d3ff807f
 ```bash
 python chatbot/build_db.py                             # data/gold/parquet → chatbot/warehouse.duckdb
 # Windows + OneDrive: set $env:WB_DB_PATH = "$env:TEMP\wb\warehouse.duckdb" first (OneDrive can block DuckDB)
