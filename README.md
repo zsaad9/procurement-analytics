@@ -2,8 +2,12 @@
 
 End-to-end analytics on the World Bank's public **Contract Awards in Investment Project Financing (since FY2020)**
 dataset (Finances One, DS00005, sourced from STEP): a Databricks medallion pipeline with automated data-quality
-checks, ten defined procurement indicators, a Power BI model and dashboard specification, a natural-language-to-SQL
-assistant with guardrails, and a management brief. Every figure in this repository is produced by code in it.
+checks, ten defined procurement indicators, an interactive HTML dashboard, a Power BI model and DAX specification,
+a natural-language-to-SQL assistant with guardrails, and a management brief.
+
+**Live dashboard:** `https://<your-username>.github.io/<repo-name>/` (see *Dashboard* below to switch it on)
+
+Every figure in this repository is produced by code in it.
 
 ## Problem
 
@@ -24,7 +28,8 @@ flowchart LR
     C & D --> Q[Data-quality checks<br/>dq_results]
     D --> I[Indicators<br/>ind_* tables]
     D --> E[Exports<br/>Parquet / CSV]
-    E --> P[Power BI<br/>model + DAX + 4 pages]
+    E --> H[HTML dashboard<br/>docs/index.html]
+    E --> P[Power BI<br/>model + DAX spec]
     E --> K[DuckDB read-only] --> L[Chatbot<br/>question → SQL → answer + evidence]
     I --> F[Findings brief]
 ```
@@ -48,6 +53,7 @@ scripts/              run_pipeline_local.py: runs the same notebooks with local 
 profiling/            profile_raw.py → docs/data_profile.md
 analysis/             build_findings.py, render_indicator_values.py, render_data_dictionary.py
 chatbot/              build_db.py, guardrails.py, llm.py, engine.py, cli.py, app.py (Streamlit)
+dashboard/            build_dashboard.py + template.html → docs/index.html (interactive dashboard)
 powerbi/              README.md (model, relationships, page layouts), measures.dax
 docs/                 data_profile, indicators, indicator_values, data_dictionary, findings_brief
 data/gold/parquet/    gold + indicator exports (so the chatbot runs without Spark)
@@ -78,9 +84,9 @@ python scripts/run_pipeline_local.py                   # bronze → export, writ
 ```
 
 ### 3. Chatbot
-https://github.com/user-attachments/assets/800db6ac-c459-4093-aff4-e9d232158c6a
 ```bash
 python chatbot/build_db.py                             # data/gold/parquet → chatbot/warehouse.duckdb
+# Windows + OneDrive: set $env:WB_DB_PATH = "$env:TEMP\wb\warehouse.duckdb" first (OneDrive can block DuckDB)
 cd chatbot
 python cli.py "What share of FY2025 awards in Africa used open international competition?"
 streamlit run app.py                                   # web UI
@@ -100,14 +106,27 @@ opened `read_only` with external access disabled; 20-second timeout; questions t
 prices, cofinancing, subcontractors) are refused. A Databricks SQL backend is included (`--backend databricks`)
 for running against the warehouse; only the DuckDB backend was exercised in this build.
 
-### 4. Power BI
+### 4. Dashboard
+`docs/index.html` is a single self-contained file (no server, no libraries): open it in a browser. It has five tabs
+(Executive overview, Trends, Procurement methods, Regions & suppliers, Data quality), filters for fiscal year, region
+and procurement category, hover tooltips, a table view for every chart, and light/dark themes. Every number is
+pre-computed from the gold tables by `dashboard/build_dashboard.py` (`tests/test_dashboard.py` reconciles it with
+the indicator tables).
+
+To publish it: GitHub repo → **Settings → Pages → Build and deployment → Deploy from a branch → `main` / `/docs`**.
+After a minute it is live at `https://<your-username>.github.io/<repo-name>/`.
+
+Rebuild after a data refresh: `python dashboard/build_dashboard.py`.
+
+### 5. Power BI (optional)
 Follow [`powerbi/README.md`](powerbi/README.md): load the exports (or connect to Databricks), create the
 relationships, paste [`measures.dax`](powerbi/measures.dax), build the four pages, and reconcile against
 [`docs/indicator_values.md`](docs/indicator_values.md).
 
-### 5. Regenerate docs and run tests
+### 6. Regenerate docs and run tests
 ```bash
 python analysis/build_findings.py && python analysis/render_indicator_values.py && python analysis/render_data_dictionary.py
+python dashboard/build_dashboard.py
 pytest -q
 ```
 
@@ -148,4 +167,5 @@ checks pass.
   chatbot's DuckDB backend and rule-based planner are tested; the Claude planner is tested with a mocked API client;
   the Databricks SQL backend for the chatbot has not been run.
 
-*Data: World Bank, Finances One (public). This is an independent portfolio project, not a World Bank product.*
+*Data: World Bank, Finances One, dataset DS00005, licensed under Creative Commons Attribution 4.0 (CC BY 4.0).
+This is an independent portfolio project, not a World Bank product.*
