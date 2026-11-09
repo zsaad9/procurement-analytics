@@ -78,9 +78,7 @@ python scripts/run_pipeline_local.py                   # bronze → export, writ
 ```
 
 ### 3. Chatbot
-
-
-
+https://github.com/user-attachments/assets/800db6ac-c459-4093-aff4-e9d232158c6a
 ```bash
 python chatbot/build_db.py                             # data/gold/parquet → chatbot/warehouse.duckdb
 cd chatbot
